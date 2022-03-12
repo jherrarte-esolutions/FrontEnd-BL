@@ -11,11 +11,13 @@ import {
   ModalFooter,
 } from "reactstrap";
 
+/* URL's to consume API REST from BackEnd-BL project */
 const getAllUsers = "http://localhost:8081/blautech/get";
 const updateUser = "http://localhost:8081/blautech/update/";
 const createUser = "http://localhost:8081/blautech/create";
 const deleteUser = "http://localhost:8081/blautech/delete/";
 
+/*Default data to construct table*/
 let data = [
   {
     cui: "",
@@ -28,6 +30,7 @@ let data = [
 ];
 
 class Menu extends Component {
+
   state = {
     data: data,
     updateModal: false,
@@ -42,6 +45,7 @@ class Menu extends Component {
     },
   };
 
+  /*When Update button is clicked, this method open the update Modal */
   showUpdateModal = (dataUser) => {
     this.setState({
       form: dataUser,
@@ -49,16 +53,21 @@ class Menu extends Component {
     });
   };
 
+  
+  /*When Update button is clicked, this method close the update Modal */
   closeUpdateModal = () => {
     this.setState({ updateModal: false });
   };
 
+  
+  /*When Update button is clicked, this method open the create Modal */
   showCreateModal = () => {
     this.setState({
       createModal: true,
     });
   };
 
+  /*When Update button is clicked, this method close the create Modal */
   closeCreateModal = () => {
     this.setState({ createModal: false });
   };
@@ -71,7 +80,7 @@ class Menu extends Component {
       name: dataUser.name,
       userName: dataUser.userName,
       mail: dataUser.mail,
-      password: "123456789",
+      password: dataUser.password,
       age: dataUser.age,
     };
     console.log(user);
@@ -86,7 +95,7 @@ class Menu extends Component {
         var counter = 0;
         var tempArray = this.state.data;
         tempArray.map((dataMap) => {
-          if (dataUser.cui == dataMap.cui) {
+          if (dataUser.cui === dataMap.cui) {
             tempArray[counter].cui = dataUser.cui;
             tempArray[counter].name = dataUser.name;
             tempArray[counter].userName = dataUser.userName;
@@ -96,8 +105,9 @@ class Menu extends Component {
           counter++;
         });
         this.setState({ data: tempArray, updateModal: false });
+        return response.json();
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error("Error:", error)).then(response => alert('Success: '+ response.msg));
   };
 
   /* ----------------------------------------------------- delete user -----------------------------------------------------------------------*/
@@ -106,9 +116,9 @@ class Menu extends Component {
     var selectOption = window.confirm(
       "You wanna delete this user? " + dataUser.userName
     );
-    if (selectOption == true) {
+    if (selectOption === true) {
       await fetch(deleteUser + dataUser.cui, {
-        method: "DELETE", // or 'PUT'
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
@@ -117,14 +127,15 @@ class Menu extends Component {
           var counter = 0;
           var tempArray = this.state.data;
           tempArray.map((dataMap) => {
-            if (dataUser.cui == dataMap.cui) {
+            if (dataUser.cui === dataMap.cui) {
               tempArray.splice(counter, 1);
             }
             counter++;
           });
           this.setState({ data: tempArray, updateModal: false });
+          return response.json();
         })
-        .catch((error) => console.error("Error:", error));
+        .catch((error) => console.error("Error:", error)).then(response => alert('Success: '+ response.msg));
     }
   };
 
@@ -136,27 +147,26 @@ class Menu extends Component {
       name: userValues.name,
       userName: userValues.userName,
       mail: userValues.mail,
-      password: "123456789",
+      password: userValues.password,
       age: userValues.age,
     };
-    console.log(user);
     await fetch(createUser, {
-      method: "POST", // or 'PUT'
-      body: JSON.stringify(user), // data can be `string` or {object}!
+      method: "POST", 
+      body: JSON.stringify(user), 
       headers: {
         "Content-Type": "application/json",
       },
     })
       .then((response) => {
-        console.log("Success:", response);
-        //console.log("Valor " + userValues.cui);
         var lista = this.state.data;
         lista.push(userValues);
         this.setState({ createModal: false, data: lista });
+        return response.json();
       })
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error("Error:", error)).then(response => alert('Success: '+ response.msg));
   };
 
+  /*This method is shooted when something is changed */
   handleChange = (e) => {
     this.setState({
       form: {
@@ -166,12 +176,12 @@ class Menu extends Component {
     });
   };
 
+  /*When component was monted, this method run */
   componentDidMount() {
     fetch(getAllUsers)
       .then((response) => response.json())
       .then((d) => {
-        console.log("This is your data", d);
-        this.setState({ createModal: false, data: d });
+        this.setState({ data: d });
       });
   }
 
@@ -279,6 +289,16 @@ class Menu extends Component {
             </FormGroup>
 
             <FormGroup>
+              <label>Password:</label>
+              <input
+                className="form-control"
+                name="password"
+                type="password"
+                onChange={this.handleChange}
+              />
+            </FormGroup>
+
+            <FormGroup>
               <label>Age:</label>
               <input
                 className="form-control"
@@ -302,6 +322,8 @@ class Menu extends Component {
             </Button>
           </ModalFooter>
         </Modal>
+
+
 
         <Modal isOpen={this.state.createModal}>
           <ModalHeader>
@@ -352,6 +374,16 @@ class Menu extends Component {
               />
             </FormGroup>
 
+            <FormGroup>
+              <label>Password:</label>
+              <input
+                className="form-control"
+                name="password"
+                type="password"
+                onChange={this.handleChange}
+              />
+            </FormGroup>
+            
             <FormGroup>
               <label>Age:</label>
               <input
